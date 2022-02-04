@@ -1,13 +1,10 @@
 import { stripHtml } from "string-strip-html";
 import db from "../db.js";
-import newUserScheme from "../schemes/newUserScheme.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
 export const signUp = async (req, res) => {
     const user = req.body;
-    const validate = newUserScheme.validate(user);
-    if (validate.error) return res.status(422).send(validate.error);
     try {
         const alreadyRegistered = await db.collection("users").findOne({ email: user.email });
         if (alreadyRegistered) return res.status(409).send("E-mail já cadastrado");
