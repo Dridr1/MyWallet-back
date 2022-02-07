@@ -1,11 +1,13 @@
 import { stripHtml } from "string-strip-html";
 import db from "../db.js";
+import dayjs from "dayjs";
+import { ObjectId } from "mongodb";
 
-const newMovement = async (req, res) => {
+export const newMovement = async (req, res) => {
     const user = res.locals.user;
     try {
         const sanitizedDescription = stripHtml(req.body.description).result.trim();
-        const movement = { ...req.body, description: sanitizedDescription, userID: user._id };
+        const movement = { ...req.body, date: dayjs().format('DD/MM'), description: sanitizedDescription, userID: user._id };
         await db.collection("movements").insertOne(movement);
         return res.sendStatus(201);
     } catch (error) {
@@ -13,7 +15,7 @@ const newMovement = async (req, res) => {
     }
 };
 
-const getMovements = async (req, res) => {
+export const getMovements = async (req, res) => {
     const user = res.locals.user;
     try {
         const movements = await db.collection("movements").find({ userID: user._id }).toArray();
@@ -22,13 +24,23 @@ const getMovements = async (req, res) => {
             if (move.type === 'entry') balance += parseFloat(move.value);
             else if (move.type === 'exit') balance -= parseFloat(move.value);
         };
-        return res.status(200).send({ balance, movements });
+        return res.status(200).send({ name: user.name, balance, movements: [...movements] });
     } catch (error) {
         return res.send(error);
     }
 }
 
-export {
-    newMovement,
-    getMovements
-} 
+export const deleteMovement = async (req, res) => {
+    const userID = new ObjectId(res.locals.user._id);
+    const id = new ObjectId(req.query.id);
+    console.log("log  1: objs criados");
+    try {
+        const movement = await db.collection("movements").findOne({ _id: id });
+        if (!movement) return res.sendStatus(401);
+        if (userID.toString() !== movement.userID.toString()) return res.sendStatus(401);
+        await db.collection("movements").deleteOne({_id: id});
+        return res.sendStatus(200);
+    } catch (error) {
+        return res.status(400).send(error);
+    }
+}
