@@ -33,12 +33,25 @@ export const getMovements = async (req, res) => {
 export const deleteMovement = async (req, res) => {
     const userID = new ObjectId(res.locals.user._id);
     const id = new ObjectId(req.query.id);
-    console.log("log  1: objs criados");
     try {
         const movement = await db.collection("movements").findOne({ _id: id });
         if (!movement) return res.sendStatus(401);
         if (userID.toString() !== movement.userID.toString()) return res.sendStatus(401);
-        await db.collection("movements").deleteOne({_id: id});
+        await db.collection("movements").deleteOne({ _id: id });
+        return res.sendStatus(200);
+    } catch (error) {
+        return res.status(400).send(error);
+    }
+}
+
+export const updateMovement = async (req, res) => {
+    const userID = new ObjectId(res.locals.user._id);
+    const id = new ObjectId(req.query.id);
+    try {
+        const movement = await db.collection("movements").findOne({ _id: id });
+        if (!movement) return res.sendStatus(401);
+        if (userID.toString() !== movement.userID.toString()) return res.sendStatus(401);
+        await db.collection("movements").updateOne({ _id: id }, { $set: { ...movement, description: req.body.description, value: req.body.value } });
         return res.sendStatus(200);
     } catch (error) {
         return res.status(400).send(error);
