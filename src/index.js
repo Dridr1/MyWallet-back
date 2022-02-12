@@ -9,8 +9,6 @@ app.use(cors());
 app.use(authRouter);
 app.use(movementsRouter)
 
-app.listen(5000, () => {
-    console.log("|---------------------------------------------------------------|");
-    console.log("| Welcome to MyWallet! API is running at http://localhost:5000/ |");
-    console.log("|---------------------------------------------------------------|");
+app.listen(process.env.PORT, () => {
+    console.log(`| Welcome to MyWallet! API is running on PORT ${process.env.PORT} |`);
 });

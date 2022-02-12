@@ -6,6 +6,7 @@ const movementsRouter = Router();
 
 movementsRouter.post('/movements', verifyTokenMiddleware, validateNewMovementMiddleware, newMovement);
 movementsRouter.get('/movements', verifyTokenMiddleware, getMovements);
-movementsRouter.delete("/movements", verifyTokenMiddleware, deleteMovement);
 movementsRouter.put("/movements", verifyTokenMiddleware, validateNewMovementMiddleware,updateMovement);
+movementsRouter.delete("/movements", verifyTokenMiddleware, deleteMovement);
+
 export default movementsRouter;
